@@ -1,0 +1,75 @@
+//ez egy jó kis zh lesz
+#pragma once
+
+namespace WindowsForm {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	// Akkumulátor osztály
+	ref class Battery {
+	public:
+		int charge;
+		Battery() {
+			charge = 100;
+		}
+		void Discharge() {
+			if (charge > 0) charge -= 10;
+		}
+		bool IsEmpty() {
+			return charge <= 0;
+		}
+	};
+
+	public ref class Form1 : public System::Windows::Forms::Form
+	{
+	public:
+		Form1(void)
+		{
+			InitializeComponent();
+			battery = gcnew Battery();
+			timer = gcnew Timer();
+			timer->Interval = 1000; // 1 másodperc
+			timer->Tick += gcnew EventHandler(this, &Form1::OnTimerTick);
+			timer->Start();
+		}
+
+	protected:
+		~Form1()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+
+	private:
+		System::ComponentModel::Container^ components;
+		Timer^ timer;
+		Battery^ battery;
+
+		void OnTimerTick(Object^ sender, EventArgs^ e) {
+			battery->Discharge();
+			this->Text = "Töltöttség: " + battery->charge.ToString() + "%";
+			if (battery->IsEmpty()) {
+				timer->Stop();
+				Application::Exit();
+			}
+		}
+
+#pragma region Windows Form Designer generated code
+		void InitializeComponent(void)
+		{
+			this->components = gcnew System::ComponentModel::Container();
+			this->Size = System::Drawing::Size(300, 100);
+			this->Text = L"Akkumulátor szimuláció";
+			this->Padding = System::Windows::Forms::Padding(0);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+		}
+#pragma endregion
+	};
+}
